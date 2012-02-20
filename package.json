@@ -16,8 +16,9 @@
 , "bin" : { "juggernaut" : "./server.js" }
 , "dependencies" :
   { "socket.io" : "=0.8.7"
-  , "redis" : "=0.6.6"
-  , "node-static-maccman" : "~0.5.3"
+  , "redis" : "=0.6.7"
   , "optimist": "~0.2.3"
+  , "express": "=2.5.8"
+  , "log": "~1.3"
   }
 }

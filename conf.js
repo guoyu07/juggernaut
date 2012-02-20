@@ -1,6 +1,13 @@
 module.exports = conf = {};
 
-// Redis server config
-conf.redis = {};
-conf.redis.host = 'localhost';
-conf.redis.port = 6379;
+// set to true for verbose logging
+conf.devel = true;
+
+// full path of log file or stdout for logging to std output
+conf.logfile = 'stdout';
+
+// redis server config
+conf.redis = {
+  host: 'localhost',
+  port: 6379
+};
