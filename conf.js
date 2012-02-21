@@ -11,3 +11,10 @@ conf.redis = {
   host: 'localhost',
   port: 6379
 };
+
+// authorised private key of known publisher
+// only authorised publisher is able to publish message throught /pub/ API.
+conf.authorizedKey = {
+  // key: description
+  'testkey': 'key for internal testing of service'
+};
