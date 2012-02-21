@@ -20,7 +20,7 @@
 </head>
 <body>
 
-  <h1>Juggernaut - Hello World!</h1>
+  <h1>Juggernaut - Server status</h1>
   
   <textarea id="log" readonly></textarea>
   
@@ -41,10 +41,11 @@
     jug.on("disconnect", function(){ log("Disconnected") });
     jug.on("reconnect", function(){ log("Reconnecting") });
     
-    log("Subscribing to channel1");
-    
-    jug.subscribe("channel1", function(data){
-      log("Got data: " + data);
+    jug.subscribe("metrics", function(data){
+        log('connected clients: ' + data.counters.clients.count);
+        log('messages delivered: ' + data.meters.messages.count);
+        log('messages delivering rate last minute: ' + data.meters.messages.m1 + ' msg/sec');
+        console.log(data);
     });
   </script>
 </body>
