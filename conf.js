@@ -18,3 +18,9 @@ conf.authorizedKey = {
   // key: description
   'testkey': 'key for internal testing of service'
 };
+
+// metrics config
+conf.metrics = {
+  // reporting interval, in second
+  reportInterval: 60
+};

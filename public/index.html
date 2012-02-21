@@ -42,10 +42,9 @@
     jug.on("reconnect", function(){ log("Reconnecting") });
     
     jug.subscribe("metrics", function(data){
-        log('connected clients: ' + data.counters.clients.count);
-        log('messages delivered: ' + data.meters.messages.count);
-        log('messages delivering rate last minute: ' + data.meters.messages.m1 + ' msg/sec');
-        console.log(data);
+        log('connected clients: ' + data.clients.count);
+        log('messages delivered: ' + data.messages.count);
+        log('messages delivering rate last minute: ' + data.messages.m1 + ' msg/sec');
     });
   </script>
 </body>
