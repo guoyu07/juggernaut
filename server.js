@@ -1,21 +1,27 @@
 #!/usr/bin/env node
-var argv = require("optimist").argv,
-    util = require("util");
 
-var help = [
-    "usage: juggernaut [options] ",
-    "",
-    "Starts a juggernaut server using the specified command-line options",
-    "",
-    "options:",
-    "  --port   PORT       Port that the proxy server should run on",
-    "  --silent            Silence the log output",
-    "  -h, --help          You're staring at it"
-].join('\n');
+var util = require("util"),
+    fs = require('fs'),
+    path = require('path'),
+    conf = require('./conf');
 
-if (argv.h || argv.help) {
-  return util.puts(help);
-}
+var pidfile = conf.pidfile;
 
+// start server
 Juggernaut = require("./index");
-Juggernaut.listen(argv.port);
+Juggernaut.listen(conf.port);
+
+// write pid file if daemonized
+if (conf.daemonized)
+  fs.writeFileSync(pidfile, process.pid);
+
+// try to remove the pid file on exit
+var prepareExit = function(err) {
+  if (path.existsSync(pidfile))
+    fs.unlinkSync(pidfile);
+  process.exit(err? 1 : 0);
+};
+
+process.on('SIGINT', prepareExit);
+process.on('SIGTERM', prepareExit);
+process.on('uncaughtException', prepareExit);

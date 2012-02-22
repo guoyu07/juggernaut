@@ -1,0 +1,5 @@
+#!/bin/sh
+log=/var/log/juggernaut.log
+
+PATH=$PATH:/usr/local/bin
+NODE_ENV=production nohup node /root/workspace/juggernaut/server.js 1>>$log 2>&1 &
