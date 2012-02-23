@@ -11,9 +11,8 @@ var pidfile = conf.pidfile;
 Juggernaut = require("./index");
 Juggernaut.listen(conf.port);
 
-// write pid file if daemonized
-if (conf.daemonized)
-  fs.writeFileSync(pidfile, process.pid);
+// write pid file
+fs.writeFileSync(pidfile, process.pid);
 
 // try to remove the pid file on exit
 var prepareExit = function(err) {

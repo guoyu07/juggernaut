@@ -1,15 +1,14 @@
-module.exports = conf = {};
+var conf = {};
 
 // Accept connection on specified port.
 // By default, juggernaut will listen on port 8080
 conf.port = 8080;
 
 // Set to true to run juggernaut as a daemon
-// Juggernaut will write a pid file in /var/run/juggernaut.pid
 // by default when daemonized
 conf.daemonized = false;
 
-// pid file location
+// by default, juggernaut will write a pid file in /var/run/juggernaut.pid
 conf.pidfile = '/var/run/juggernaut.pid';
 
 // set to true for verbose logging
@@ -36,3 +35,13 @@ conf.metrics = {
   // reporting interval, in second
   reportInterval: 60
 };
+
+var path = require('path');
+var systemConfig = '/etc/juggernaut/conf.js';
+if (__filename !== systemConfig && path.existsSync(systemConfig)) {
+  // load the global config if exists
+  module.exports = require(systemConfig);
+} else {
+  module.exports = conf;
+}
+

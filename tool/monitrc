@@ -1,0 +1,9 @@
+#!monit
+set logfile /var/log/monit.log
+check process juggernaut with pidfile "/var/run/juggernaut.pid"
+  start program = "/etc/init.d/juggernaut start"
+  stop program = "/etc/init.d/juggernaut stop"
+  if failed port 8080 protocol HTTP
+    request /health
+    with timeout 10 seconds
+    then restart
