@@ -3,7 +3,8 @@
 <head>
   <meta name="charset" content="utf-8">
   <title>Juggernaut</title>
-  <script src="application.js" type="text/javascript" charset="utf-8"></script>
+  <script src="jquery-1.7.1.min.js" type="text/javascript" charset="utf-8"></script>
+  <script src="juggernaut.js" type="text/javascript" charset="utf-8"></script>
   
   <style type="text/css" media="screen">
     h1 {
@@ -25,26 +26,57 @@
   <textarea id="log" readonly></textarea>
   
   <script type="text/javascript" charset="utf-8">
-    var logElement = document.getElementById("log");
-    logElement.value = "";
-    var log = function(data){
-      logElement.value += (data + "\n");
-    };
-    
-    var jug = new Juggernaut({
-      secure: ('https:' == document.location.protocol),
-      host: document.location.hostname,
-      port: document.location.port || 80
-    });
-    
-    jug.on("connect", function(){ log("Connected") });
-    jug.on("disconnect", function(){ log("Disconnected") });
-    jug.on("reconnect", function(){ log("Reconnecting") });
-    
-    jug.subscribe("metrics", function(data){
-        log('connected clients: ' + data.clients.count);
-        log('messages delivered: ' + data.messages.count);
-        log('messages delivering rate last minute: ' + data.messages.m1 + ' msg/sec');
+    $(function() {
+      var host = document.location.hostname;
+      var port = document.location.port || 80;
+      var urlPrefix = 'http://' + host + ':' + port;
+
+      var now = function() { return (new Date()).getTime(); }
+
+      var postMetric = function(data) {
+        $.post(urlPrefix + '/metric', {'multimetrics': data});
+      };
+
+      var jug = new Juggernaut({
+        host: host,
+        port: port
+      });
+      
+      var random = 'channel-' + Math.floor(Math.random() * 10000);
+      var before = now();
+      var connectTime, notifyTime, latency;
+      var connected = false;
+
+      jug.on('connect', function() {
+          connectTime = now() - before;
+          connected = true;
+          console.log('connected after ' + connectTime + ' ms');
+      });
+
+      jug.subscribe(random, function(data) {
+          if (data === random) {
+            latency = now() - before;
+            jug.unsubscribe(random);
+            console.log('test finished, notification received after ' + latency + ' ms');
+            postMetric({
+              establishConnection: connectTime,
+              notifyTime: notifyTime,
+              notificationLatency: latency
+            });
+          }
+      });
+
+      var interval = setInterval(function() {
+          if (connected) {
+            before = now();
+            $.post(urlPrefix + '/notify/' + random, {authkey: 'testkey', data: random},
+              function() { 
+                notifyTime = now() - before;
+                console.log('notify request completed after ' + notifyTime + ' ms')
+              });
+            clearInterval(interval);
+          }
+      }, 2000);
     });
   </script>
 </body>
