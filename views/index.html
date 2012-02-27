@@ -5,8 +5,15 @@
   <title>Juggernaut</title>
   <link href="css/bootstrap.css" rel="stylesheet" />
   <style type="text/css">
-  div {
-    margin-bottom: 10px;
+    section {
+      padding-top: 30px;
+    }
+    .mainhead {
+      margin-top: 30px;
+    }
+    .mainhead > h1 {
+      font-size: 45px;
+      color: #DD1144;
     }
   </style>
   <script src="js/jquery.js" type="text/javascript" charset="utf-8"></script>
@@ -17,6 +24,8 @@
       $('#messagesMean').text(round($('#messagesMean').text(), 4));
       $('#messagesM5').text(round($('#messagesM5').text(), 4));
       $('#uptime').text(durationToString($('#uptime').text()));
+      $('#establishConnectionMean').text(round($('#establishConnectionMean').text(), 4));
+      $('#notificationLatencyMean').text(round($('#notificationLatencyMean').text(), 4));
 
       var host = document.location.hostname;
       var port = document.location.port || 80;
@@ -41,6 +50,12 @@
         $('#messagesMean').text(round(metrics.messages.mean, 4));
         $('#messagesM5').text(round(metrics.messages.m5, 4));
         $('#uptime').text(durationToString(metrics.uptime));
+        $('#establishConnectionMean').text(round(metrics.establishConnection.duration.mean, 4));
+        $('#establishConnectionMax').text(round(metrics.establishConnection.duration.max, 4));
+        $('#establishConnectionCount').text(metrics.establishConnection.duration.count);
+        $('#notificationLatencyMean').text(round(metrics.notificationLatency.duration.mean, 4));
+        $('#notificationLatencyMax').text(round(metrics.notificationLatency.duration.max, 4));
+        $('#notificationLatencyCount').text(metrics.notificationLatency.duration.count);
       });
 
       jug.subscribe('public', function(data) {
@@ -48,41 +63,91 @@
       });
     });
   </script>
-  <!-- <script src="js/test.js" type="text/javascript" charset="utf-8"></script> -->
+  <!--<script src="js/test.js" type="text/javascript" charset="utf-8"></script>-->
 </head>
 <body>
 
   <div class="container">
-
-    <div class="page-header">
+    <header class="mainhead">
       <h1>Juggernaut <small>realtime pub/sub system</small></h1>
-    </div>
+    </header>
 
-    <div class="row">
-      <div class="span4">
-        <h1 id='clientsCount'>{{= metrics.clients.count}}</h1>
-        <p><i class="icon-user"></i> Connected clients</p>
+    <section>
+      <div class="page-header">
+        <h2>System status</h2>
       </div>
-      <div class="span4">
-        <h1 id='messagesCount'>{{= metrics.messages.count }}</h1>
-        <p><i class="icon-comment"></i> Messages sent <em>(total)</em></p>
+      <div class="row">
+        <div class="span4">
+          <h1 id='clientsCount'><%= metrics.clients.count%></h1>
+          <p><i class="icon-user"></i> Connected clients</p>
+        </div>
+        <div class="span4">
+          <h1 id='messagesCount'><%= metrics.messages.count %></h1>
+          <p><i class="icon-comment"></i> Total messages sent</p>
+        </div>
+        <div class="span4">
+          <h1 id='messagesMean'><%= metrics.messages.mean %></h1>
+          <p><i class="icon-flag"></i> Average rate <em>(messages/second)</em></p>
+        </div>
+        <div class="span4">
+          <h1 id='messagesM5'><%= metrics.messages.m5 %></h1>
+          <p><i class="icon-flag"></i> Last 5 minutes rate <em>(messages/second)</em></p>
+        </div>
+        <div class="span8">
+          <h1 id='uptime'><%= metrics.uptime %></h1>
+          <p><i class="icon-time"></i> Service Uptime</p>
+        </div>
       </div>
-      <div class="span4">
-        <h1 id='messagesMean'>{{= metrics.messages.mean }}</h1>
-        <p><i class="icon-flag"></i> Messages/second <em>(average)</em></p>
+    </section>
+
+    <section>
+      <div class="page-header">
+        <h2>Collected performance data</h2>
       </div>
-      <div class="span4">
-        <h1 id='messagesM5'>{{= metrics.messages.m5 }}</h1>
-        <p><i class="icon-flag"></i> Messages/second <em>(last 5 minute)</em></p>
+      <div class="row">
+        <% if (metrics.establishConnection) { %>
+          <div class="span4">
+            <h1><span id='establishConnectionMean'><%= metrics.establishConnection.duration.mean %></span> ms</h1>
+            <p><i class="icon-time"></i> Average time to establish connection</p>
+          </div>
+          <div class="span4">
+            <h1><span id='establishConnectionMax'><%= metrics.establishConnection.duration.max %></span> ms</h1>
+            <p><i class="icon-time"></i> Maximum time to establish connection</p>
+          </div>
+          <div class="span4">
+            <h1 id='establishConnectionCount'><%= metrics.establishConnection.duration.count %></h1>
+            <p><i class="icon-envelope"></i> Collected samples</p>
+          </div>
+          <div class="span4">
+            <h1><span id='notificationLatencyMean'><%= metrics.notificationLatency.duration.mean %></span> ms</h1>
+            <p><i class="icon-time"></i> Average notification latency</p>
+          </div>
+          <div class="span4">
+            <h1><span id='notificationLatencyMax'><%= metrics.notificationLatency.duration.max %></span> ms</h1>
+            <p><i class="icon-time"></i> Maximum notification latency</p>
+          </div>
+          <div class="span4">
+            <h1 id='notificationLatencyCount'><%= metrics.notificationLatency.duration.count %></h1>
+            <p><i class="icon-envelope"></i> Collected samples</p>
+          </div>
+        <% } else { %>
+          <div class="span12">
+            <p> Sorry, data is not available yet. </p>
+          </div>
+        <% } %>
       </div>
-      <div class="span8">
-        <h1 id='uptime'>{{= metrics.uptime }}</h1>
-        <p><i class="icon-time"></i> Service Uptime</p>
+    </section>
+
+    <section>
+      <div class="page-header">
+        <h2>Test client & public channel</h2>
       </div>
-      <div class="span12">
-        <pre class="pre-scrollable" id="log"></pre>
+      <div class="row">
+        <div class="span12">
+          <pre class="pre-scrollable" id="log"></pre>
+        </div>
       </div>
-    </div>
+    </section>
 
   </div>
 </body>
