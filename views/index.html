@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="charset" content="utf-8">
+  <title>Juggernaut</title>
+  <link href="css/bootstrap.css" rel="stylesheet" />
+  <style type="text/css">
+  div {
+    margin-bottom: 10px;
+    }
+  </style>
+  <script src="js/jquery.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/juggernaut.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/util.js" type="text/javascript" charset="utf-8"></script>
+  <script type="text/javascript">
+    $(function() {
+      $('#messagesMean').text(round($('#messagesMean').text(), 4));
+      $('#messagesM5').text(round($('#messagesM5').text(), 4));
+      $('#uptime').text(durationToString($('#uptime').text()));
+
+      var host = document.location.hostname;
+      var port = document.location.port || 80;
+      var jug = new Juggernaut({ host: host, port: port });
+
+      var log = function(msg) {
+        var pre = $('#log');
+        pre.text(pre.text() + msg + '\n');
+      };
+
+      jug.on('connect', function() {
+        log('Juggernaut client connected');
+      });
+
+      jug.on('disconnect', function() {
+        log('Juggernaut client disconnected');
+      });
+
+      jug.subscribe('metrics', function(metrics) {
+        $('#clientsCount').text(metrics.clients.count);
+        $('#messagesCount').text(metrics.messages.count);
+        $('#messagesMean').text(round(metrics.messages.mean, 4));
+        $('#messagesM5').text(round(metrics.messages.m5, 4));
+        $('#uptime').text(durationToString(metrics.uptime));
+      });
+
+      jug.subscribe('public', function(data) {
+        log('Got data from `public` channel: ' + data);
+      });
+    });
+  </script>
+  <!-- <script src="js/test.js" type="text/javascript" charset="utf-8"></script> -->
+</head>
+<body>
+
+  <div class="container">
+
+    <div class="page-header">
+      <h1>Juggernaut <small>realtime pub/sub system</small></h1>
+    </div>
+
+    <div class="row">
+      <div class="span4">
+        <h1 id='clientsCount'>{{= metrics.clients.count}}</h1>
+        <p><i class="icon-user"></i> Connected clients</p>
+      </div>
+      <div class="span4">
+        <h1 id='messagesCount'>{{= metrics.messages.count }}</h1>
+        <p><i class="icon-comment"></i> Messages sent <em>(total)</em></p>
+      </div>
+      <div class="span4">
+        <h1 id='messagesMean'>{{= metrics.messages.mean }}</h1>
+        <p><i class="icon-flag"></i> Messages/second <em>(average)</em></p>
+      </div>
+      <div class="span4">
+        <h1 id='messagesM5'>{{= metrics.messages.m5 }}</h1>
+        <p><i class="icon-flag"></i> Messages/second <em>(last 5 minute)</em></p>
+      </div>
+      <div class="span8">
+        <h1 id='uptime'>{{= metrics.uptime }}</h1>
+        <p><i class="icon-time"></i> Service Uptime</p>
+      </div>
+      <div class="span12">
+        <pre class="pre-scrollable" id="log"></pre>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

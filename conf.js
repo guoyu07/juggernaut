@@ -17,6 +17,13 @@ conf.devel = true;
 // full path of log file or stdout for logging to std output
 conf.logfile = 'stdout';
 
+// socket.io config
+conf.io = {
+  'transports': ['htmlfile', 'xhr-polling', 'jsonp-polling'],
+  'polling duration': 60,
+  'heartbeat interval': 60
+};
+
 // redis server config
 conf.redis = {
   host: 'localhost',
